@@ -54,7 +54,10 @@ else:
     print("WARNING: GOOGLE_API_KEY not found. AI features will fail.")
     model = None
 
-db = SQLAlchemy(app)
+db = SQLAlchemy(app, engine_options={
+    "pool_pre_ping": True,
+    "pool_recycle": 300,
+})
 bcrypt = Bcrypt(app)
 jwt = JWTManager(app)
 
