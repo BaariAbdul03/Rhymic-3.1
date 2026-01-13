@@ -155,49 +155,65 @@ def scan_library():
                         db.session.commit()
 
 # --- UPDATED: SAFE METADATA FIXER ---
-def auto_fix_metadata(limit=5):
+def auto_fix_metadata():
     """
-    Fixes up to 'limit' songs on startup.
-    Running this sequentially avoids Database Locks.
+    Continuously checks for songs with bad metadata and fixes them in batches.
+    Runs until no more 'Unknown' songs are found.
     """
     if not model: return
-
-    # Check for songs with bad metadata
-    messy_songs = Song.query.filter(
-        (Song.artist == "Unknown Artist") | (Song.artist == "Unknown")
-    ).limit(limit).all() # Limit the batch size
     
-    if not messy_songs:
-        return
+    print("Metadata Fixer: Background thread started.")
+    
+    while True:
+        with app.app_context():
+            # Check for songs with bad metadata
+            # Exclude 'Unknown (AI Checked)' to avoid infinite loops on failed files
+            messy_songs = Song.query.filter(
+                (Song.artist == "Unknown Artist") | (Song.artist == "Unknown")
+            ).limit(10).all() 
+            
+            if not messy_songs:
+                print("Metadata Fixer: All songs processed. Sleeping 60s before next check...")
+                time.sleep(60) # Keep thread alive but sleep long
+                continue
 
-    for song in messy_songs:
-        filename = os.path.basename(song.src)
-        
-        ai_prompt = f"""
-        Filename: "{filename}"
-        Task: Identify 'Artist' and 'Title'.
-        Rules: Use your music knowledge. Remove 'official', 'lyrics', 'mp3'.
-        Return JSON ONLY: {{"artist": "Name", "title": "Title"}}
-        """
-        
-        try:
-            response = model.generate_content(ai_prompt)
-            clean_text = response.text.replace("```json", "").replace("```", "").strip()
-            match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+            print(f"Metadata Fixer: Processing batch of {len(messy_songs)} songs...")
+
+            for song in messy_songs:
+                filename = os.path.basename(song.src)
+                
+                ai_prompt = f"""
+                Filename: "{filename}"
+                Task: Identify 'Artist' and 'Title'.
+                Rules: Use your music knowledge. Remove 'official', 'lyrics', 'mp3'.
+                Return JSON ONLY: {{"artist": "Name", "title": "Title"}}
+                """
+                
+                try:
+                    response = model.generate_content(ai_prompt)
+                    clean_text = response.text.replace("```json", "").replace("```", "").strip()
+                    match = re.search(r'\{.*\}', clean_text, re.DOTALL)
+                    
+                    if match:
+                        data = json.loads(match.group(0))
+                        if data.get('artist') and data['artist'] != 'Unknown':
+                            song.artist = data['artist']
+                            song.title = data['title']
+                            print(f"   -> Fixed: {song.title} by {song.artist}")
+                        else:
+                             song.artist = "Unknown (AI Checked)"
+                    else:
+                        song.artist = "Unknown (AI Checked)"
+                    
+                    db.session.commit()
+                    time.sleep(2) # Rate limit
+                    
+                except Exception as e:
+                    print(f"   -> Failed {filename}: {e}")
+                    song.artist = "Unknown (AI Checked)" # Prevent infinite loop
+                    db.session.commit()
             
-            if match:
-                data = json.loads(match.group(0))
-                if data.get('artist') and data['artist'] != 'Unknown':
-                    song.artist = data['artist']
-                    song.title = data['title']
-                    db.session.commit() # Commit each success individually
-            
-            # Small pause to be nice to the API
-            time.sleep(2)
-            
-        except Exception as e:
-            print(f"   -> Failed: {e}")
-            continue
+            time.sleep(5) # Pause between batches
 
 # --- HELPER: FETCH ARTIST IMAGE ---
 def get_artist_image(artist_name):
@@ -498,9 +514,7 @@ def initialize_app():
             if model:
                 def run_background_fix():
                     with app.app_context():
-                        print("Starting background metadata fix...")
-                        auto_fix_metadata(limit=20)
-                        print("Background metadata fix complete.")
+                        auto_fix_metadata()
                 
                 thread = threading.Thread(target=run_background_fix)
                 thread.daemon = True
