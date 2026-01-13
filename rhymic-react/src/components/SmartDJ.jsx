@@ -30,7 +30,7 @@ const SmartDJ = () => {
     const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/ai/recommend', {
+      const response = await fetch('/api/ai/recommend', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -44,11 +44,12 @@ const SmartDJ = () => {
 
       if (response.ok) {
         const data = await response.json();
-        const BASE_URL = 'http://127.0.0.1:5000';
+        // Backend returns relative paths (e.g., /assets/...) or absolute URLs
         const processed = data.map(s => ({
            ...s,
-           cover: s.cover.startsWith('http') ? s.cover : `${BASE_URL}${s.cover}`,
-           src: s.src.startsWith('http') ? s.src : `${BASE_URL}${s.src}`
+           // Ensure we don't double-prefix if logic changes, but for now trust the backend/proxy
+           cover: s.cover,
+           src: s.src
         }));
         
         setGeneratedSongs(processed);
@@ -58,6 +59,7 @@ const SmartDJ = () => {
       }
 
     } catch (error) {
+      console.error("SmartDJ Error:", error);
       // 2. Handle Timeout / Error -> Use Local Fallback
       
       if (allLocalSongs.length > 0) {

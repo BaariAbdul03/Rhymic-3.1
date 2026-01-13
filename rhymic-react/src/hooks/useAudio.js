@@ -30,21 +30,35 @@ export const useAudio = () => {
       audio.volume = useMusicStore.getState().volume;
       audio.load();
       if (isPlaying) {
-        audio.play().catch(e => console.error("Audio Play Error:", e));
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            if (e.name !== 'AbortError') {
+              console.error("Audio Play Error:", e);
+            }
+          });
+        }
       }
     }
-  }, [currentSong, audio]); // <-- REMOVED 'volume' from this dependency array
+  }, [currentSong, audio]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Effect 3: Handle Play/Pause
   useEffect(() => {
     if (currentSong) {
       if (isPlaying) {
-        audio.play().catch(e => console.error("Audio Play Error:", e));
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(e => {
+            if (e.name !== 'AbortError') {
+              console.error("Audio Play Error:", e);
+            }
+          });
+        }
       } else {
         audio.pause();
       }
     }
-  }, [isPlaying, currentSong, audio]);
+  }, [isPlaying, audio]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // *** NEW Effect 4: Sync Volume ***
   // This effect ONLY runs when volume changes and updates the audio element.
