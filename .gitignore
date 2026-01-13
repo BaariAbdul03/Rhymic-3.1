@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+instance/
+site.db
+
+# Node / React
+node_modules/
+rhymic-react/node_modules/
+rhymic-react/dist/
+.eslintcache
+
+# Vite/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs & Temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.gemini/
+tmp/
+
+# App Specific
+# User uploads (these shouldn't be in Git if using cloud storage later)
+rhymic-react/public/assets/users/*
+!rhymic-react/public/assets/users/.gitkeep

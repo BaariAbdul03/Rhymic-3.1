@@ -1,0 +1,67 @@
+// src/components/Login.jsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import styles from './Auth.module.css';
+import { useAuthStore } from '../store/authStore'; // <-- Import Store
+
+const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const navigate = useNavigate();
+  
+  const login = useAuthStore((state) => state.login);
+  const error = useAuthStore((state) => state.error);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const success = await login(email, password);
+    if (success) {
+      navigate('/');
+    }
+  };
+
+  return (
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        <h2 className={styles.title}>Welcome Back</h2>
+        <p className={styles.subtitle}>Login to continue to Rhymic</p>
+        
+        {error && <p style={{color: 'red', marginBottom: '10px'}}>{error}</p>}
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.inputGroup}>
+            <label>Email</label>
+            <input 
+              type="email" 
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className={styles.inputGroup}>
+            <label>Password</label>
+            <input 
+              type="password" 
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          <button type="submit" className={styles.submitButton}>
+            Log In
+          </button>
+        </form>
+
+        <p className={styles.footerText}>
+          Don't have an account? <Link to="/signup">Sign Up</Link>
+        </p>
+      </div>
+    </div>
+  );
+};
+
+export default Login;
