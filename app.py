@@ -512,6 +512,7 @@ def initialize_app():
                         print("Migrated: Added profile_pic column")
                     except Exception:
                         # 2. If exists, ensure it is TEXT (for Base64 support)
+                        conn.rollback() # Reset transaction after error
                         conn.execute(text('ALTER TABLE "user" ALTER COLUMN profile_pic TYPE TEXT'))
                         conn.commit()
                         print("Migrated: Updated profile_pic to TEXT")
