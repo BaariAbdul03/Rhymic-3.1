@@ -221,12 +221,14 @@
   
   .searchWrapper {
     margin-right: 8px;
-    flex: 1; /* Allow search to shrink/grow */
-    min-width: 0; /* Prevent overflow */
+    flex: 1; 
+    min-width: 0;
+    max-width: 200px; /* Limit width to prevent overlap */
   }
   
   .searchInput {
     font-size: 0.85rem;
+    width: 100%;
   }
   
   .userControls {
