@@ -137,3 +137,48 @@
     transform: translateY(0);
   }
 }
+
+@media (max-width: 768px) {
+  .heroContainer {
+    flex-direction: column-reverse; /* Text below image */
+    height: auto;
+    padding: 24px;
+    align-items: center;
+    text-align: center;
+  }
+
+  .content {
+    max-width: 100%;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .imageWrapper {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 20px;
+  }
+
+  .title {
+    font-size: 1.8rem;
+  }
+
+  .artist {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+  }
+
+  .controls {
+    width: 100%;
+    flex-direction: column; /* Stack buttons */
+    gap: 12px;
+  }
+
+  .playButton, .addButton {
+    width: 100%; /* Full width buttons */
+    justify-content: center;
+  }
+}

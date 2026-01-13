@@ -202,3 +202,45 @@
   font-size: 0.8rem;
   font-weight: 600;
 }
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 32px 16px;
+    gap: 20px;
+  }
+
+  .headerImage {
+    width: 160px;
+    height: 160px;
+  }
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 12px;
+  }
+
+  .meta {
+    justify-content: center;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+  }
+
+  .listContainer {
+    padding: 16px;
+  }
+
+  .songItem {
+    padding: 10px;
+  }
+
+  .index {
+    display: none;
+  }
+  
+  .songRight {
+    gap: 12px;
+  }
+}

@@ -281,3 +281,97 @@
 .queueInfo { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
 .queueInfo span { font-size: 0.9rem; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .queueInfo small { font-size: 0.75rem; color: var(--text-secondary); }
+
+@media (max-width: 768px) {
+  .progressBar {
+    height: 70px;
+    padding: 0 12px;
+    position: relative; /* For absolute track */
+    gap: 8px;
+  }
+
+  /* 1. Track moves to very top edge */
+  .playerControls {
+    margin: 0;
+    flex-grow: 1; /* Allow it to take available space */
+    flex-direction: row; /* Horizontal controls */
+    justify-content: flex-end; /* Push to right */
+    max-width: none;
+    order: 3; /* Move to right side */
+  }
+
+  /* Hide the time numbers and inner track wrapper */
+  .timeControls {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    gap: 0;
+    height: 3px;
+  }
+  .timeControls span { display: none; } /* Hide time text */
+
+  /* Make track full width at top */
+  .progressBarTrack {
+    border-radius: 0;
+    background-color: rgba(255,255,255,0.2);
+  }
+  .progressBarFill {
+    border-radius: 0;
+  }
+  .progressBarFill::after { display: none; } /* Remove knob */
+
+  /* 2. Song Info compact */
+  .nowPlaying {
+    flex: 1; /* Take up left space */
+    max-width: 60%;
+    gap: 8px;
+    order: 1;
+  }
+  .songCover {
+    width: 42px;
+    height: 42px;
+  }
+  .songTitle { font-size: 0.85rem; }
+  .songArtist { font-size: 0.75rem; }
+
+  /* 3. Controls - Show All */
+  .controlButtons {
+    gap: 12px;
+  }
+  /* Unhide icons */
+  .controlIcon[title="Enable Shuffle"], 
+  .controlIcon[title="Enable Repeat"],
+  .controlIcon:first-child { 
+     display: block;
+  }
+  
+  .controlIcon svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .playButton {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* 4. Extra Controls - Show Queue, Hide Volume */
+  .extraControls {
+    display: flex;
+    flex-basis: auto;
+    gap: 8px;
+  }
+  
+  .volumeContainer {
+    display: none; /* Hide volume on mobile */
+  }
+  
+  .queueContainer {
+    bottom: 75px;
+    right: 10px;
+    width: auto;
+    max-width: 90vw;
+  }
+}

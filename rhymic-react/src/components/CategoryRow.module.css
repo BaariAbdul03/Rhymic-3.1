@@ -130,3 +130,21 @@
 .overlayBtn button:hover {
   background: var(--accent-color);
 }
+
+@media (max-width: 768px) {
+  .rowContainer {
+    padding: 12px 16px;
+  }
+  
+  .title {
+    font-size: 1.1rem;
+  }
+  
+  .songCard {
+    width: 130px;
+  }
+  
+  .songCover {
+    height: 130px;
+  }
+}

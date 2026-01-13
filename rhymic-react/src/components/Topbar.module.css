@@ -220,7 +220,17 @@
   }
   
   .searchWrapper {
-    margin-right: 12px;
+    margin-right: 8px;
+    flex: 1; /* Allow search to shrink/grow */
+    min-width: 0; /* Prevent overflow */
+  }
+  
+  .searchInput {
+    font-size: 0.85rem;
+  }
+  
+  .userControls {
+    gap: 8px;
   }
   
   .subscribeButton {
