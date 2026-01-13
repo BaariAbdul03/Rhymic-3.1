@@ -1,3 +1,10 @@
+import React, { useEffect } from 'react';
+import styles from './Sidebar.module.css';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { Home, Compass, Heart, ListMusic, PlusSquare, LogOut, Moon, Sun, Sparkles } from 'lucide-react';
+import { useAuthStore } from '../store/authStore';
+import { useMusicStore } from '../store/musicStore';
+import { useThemeStore } from '../store/themeStore';
 import { useUIStore } from '../store/uiStore';
 
 const Sidebar = () => {
