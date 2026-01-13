@@ -15,7 +15,8 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 import random
-import requests # <-- NEW
+import requests
+import base64 # <-- NEW
 
 # Load environment variables
 load_dotenv()
@@ -63,7 +64,7 @@ class User(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    profile_pic = db.Column(db.String(300), default=None)
+    profile_pic = db.Column(db.Text, default=None)
 
 class Song(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -471,23 +472,23 @@ def upload_profile_pic():
         return jsonify({"message": "No selected file"}), 400
 
     if file:
-        # Save to assets/users
-        users_dir = os.path.join(ASSETS_DIR, 'users')
-        if not os.path.exists(users_dir):
-            os.makedirs(users_dir)
-        
-        # Safe filename
-        ext = os.path.splitext(file.filename)[1]
-        new_filename = f"user_{user.id}_{int(time.time())}{ext}"
-        save_path = os.path.join(users_dir, new_filename)
-        file.save(save_path)
+        try:
+            # Read bytes and convert to Base64
+            file_data = file.read()
+            b64_str = base64.b64encode(file_data).decode('utf-8')
+            
+            # Create Data URI
+            mime_type = file.content_type or "image/jpeg"
+            data_uri = f"data:{mime_type};base64,{b64_str}"
 
-        # Update DB (web path)
-        web_path = f"/assets/users/{new_filename}"
-        user.profile_pic = web_path
-        db.session.commit()
+            # Update DB (Persistent Storage)
+            user.profile_pic = data_uri
+            db.session.commit()
 
-        return jsonify({"message": "Uploaded successfully", "profile_pic": web_path})
+            return jsonify({"message": "Uploaded successfully", "profile_pic": data_uri})
+        except Exception as e:
+             print(f"Upload Error: {e}")
+             return jsonify({"message": "Upload failed"}), 500
 
 # --- RUNNER ---
 
@@ -497,15 +498,22 @@ def initialize_app():
         try:
             db.create_all()
             
-            # MIGRATION: Attempt to add profile_pic column safely
+            # MIGRATION: Attempt to add/update profile_pic column safely
             try:
                 with db.engine.connect() as conn:
                     from sqlalchemy import text
-                    conn.execute(text("ALTER TABLE user ADD COLUMN profile_pic VARCHAR(300)"))
-                    conn.commit()
-                    print("Migrated: Added profile_pic column")
-            except Exception:
-                pass # Column likely exists
+                    # 1. Try adding if missing
+                    try:
+                        conn.execute(text("ALTER TABLE user ADD COLUMN profile_pic TEXT"))
+                        conn.commit()
+                        print("Migrated: Added profile_pic column")
+                    except Exception:
+                        # 2. If exists, ensure it is TEXT (for Base64 support)
+                        conn.execute(text("ALTER TABLE user ALTER COLUMN profile_pic TYPE TEXT"))
+                        conn.commit()
+                        print("Migrated: Updated profile_pic to TEXT")
+            except Exception as e:
+                print(f"Migration Note: {e}")
             
             # Scan Library (Fast)
             scan_library()

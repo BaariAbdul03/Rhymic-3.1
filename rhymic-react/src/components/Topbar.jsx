@@ -51,6 +51,8 @@ const Topbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const PLACEHOLDER_IMG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150' viewBox='0 0 150 150'%3E%3Crect width='150' height='150' fill='%23cccccc'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='%23666666'%3EUser%3C/text%3E%3C/svg%3E";
+
   return (
     <nav className={styles.topbar}>
       <div className={styles.searchWrapper} ref={searchRef}>
@@ -93,12 +95,13 @@ const Topbar = () => {
       {/* User/Subscribe Buttons */}
       <div className={styles.userControls}>
         {/* Link to Profile */}
-        <Link to="/profile" className={styles.userIcon} style={{padding: user?.profile_pic ? 0 : 10, overflow:'hidden'}}>
-          {user?.profile_pic ? (
-             <img src={user.profile_pic} alt="Profile" style={{width:'100%', height:'100%', objectFit:'cover'}} />
-          ) : (
-             <User size={20} />
-          )}
+        <Link to="/profile" className={styles.userIcon} style={{padding: 0, overflow:'hidden'}}>
+          <img 
+            src={user?.profile_pic || PLACEHOLDER_IMG} 
+            alt="Profile" 
+            style={{width:'100%', height:'100%', objectFit:'cover'}} 
+            onError={(e) => { e.target.onerror = null; e.target.src = PLACEHOLDER_IMG; }}
+          />
         </Link>
         <Link to="/subscribe" className={styles.subscribeButton}>
           Subscribe
