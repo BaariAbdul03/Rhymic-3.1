@@ -453,11 +453,16 @@ def get_current_user():
     user = User.query.get(user_id)
     if not user: return jsonify({"message": "User not found"}), 404
     
+    # Filter out legacy file paths that are broken on Render
+    p_pic = user.profile_pic
+    if p_pic and p_pic.startswith('/assets/users/'):
+        p_pic = None
+    
     return jsonify({
         "id": user.id,
         "name": user.name,
         "email": user.email,
-        "profile_pic": user.profile_pic or None # Return null if not set
+        "profile_pic": p_pic
     })
 
 @app.route('/api/user/upload_profile_pic', methods=['POST'])
