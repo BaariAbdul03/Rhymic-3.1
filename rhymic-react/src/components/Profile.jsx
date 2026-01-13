@@ -29,7 +29,12 @@ const Profile = () => {
     <div className={styles.profileContainer}>
       <div className={styles.card}>
         <div className={styles.avatarWrapper} onClick={() => fileInputRef.current.click()}>
-          <img src={profilePic} alt="Profile" className={styles.avatar} />
+          <img 
+            src={profilePic} 
+            alt="Profile" 
+            className={styles.avatar} 
+            onError={(e) => { e.target.onerror = null; e.target.src = 'https://via.placeholder.com/150'; }}
+          />
           <div className={styles.avatarOverlay}>
             <Camera className={styles.editIcon} />
           </div>

@@ -474,26 +474,43 @@ def upload_profile_pic():
         return jsonify({"message": "Uploaded successfully", "profile_pic": web_path})
 
 # --- RUNNER ---
-if __name__ == '__main__':
+
+# Initialize App Logic (Runs on Import/Gunicorn Start)
+def initialize_app():
     with app.app_context():
-        db.create_all()
-        
-        # MIGRATION: Attempt to add profile_pic column safely
         try:
-            with db.engine.connect() as conn:
-                from sqlalchemy import text
-                conn.execute(text("ALTER TABLE user ADD COLUMN profile_pic VARCHAR(300)"))
-                conn.commit()
-                print("Migrated: Added profile_pic column")
+            db.create_all()
+            
+            # MIGRATION: Attempt to add profile_pic column safely
+            try:
+                with db.engine.connect() as conn:
+                    from sqlalchemy import text
+                    conn.execute(text("ALTER TABLE user ADD COLUMN profile_pic VARCHAR(300)"))
+                    conn.commit()
+                    print("Migrated: Added profile_pic column")
+            except Exception:
+                pass # Column likely exists
+            
+            # Scan Library (Fast)
+            scan_library()
+
+            # Background Metadata Fixer (Slow)
+            if model:
+                def run_background_fix():
+                    with app.app_context():
+                        print("Starting background metadata fix...")
+                        auto_fix_metadata(limit=20)
+                        print("Background metadata fix complete.")
+                
+                thread = threading.Thread(target=run_background_fix)
+                thread.daemon = True
+                thread.start()
+                
         except Exception as e:
-            pass # Column likely exists or other non-critical error
+            print(f"Initialization Error: {e}")
 
-        scan_library()      
-        auto_fix_metadata(limit=5) 
+# Run initialization
+initialize_app()
 
-    # DISABLED BACKGROUND WORKER (To prevent deadlocks)
-    # if os.environ.get("WERKZEUG_RUN_MAIN") == "true":
-    #    worker_thread = threading.Thread(target=background_worker, daemon=True)
-    #    worker_thread.start()
-
+if __name__ == '__main__':
     app.run(debug=True, port=5000)
