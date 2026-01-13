@@ -5,7 +5,9 @@ import {
 } from 'lucide-react';
 import styles from './ProgressBar.module.css';
 import { useMusicStore } from '../store/musicStore';
+import { useUIStore } from '../store/uiStore'; // Import UI Store
 import QueuePopup from './QueuePopup';
+import FullScreenPlayer from './FullScreenPlayer'; // Import Player
 
 const formatTime = (time) => {
   if (isNaN(time)) return '0:00';
@@ -18,6 +20,8 @@ const ProgressBar = () => {
   const [showVolume, setShowVolume] = useState(false);
   const [showQueue, setShowQueue] = useState(false);
   
+  const { isPlayerOpen, openPlayer } = useUIStore(); // UI State
+
   const currentSong = useMusicStore((state) => state.currentSong);
   const isPlaying = useMusicStore((state) => state.isPlaying);
   const currentTime = useMusicStore((state) => state.currentTime);
@@ -39,6 +43,7 @@ const ProgressBar = () => {
   const progressBarRef = useRef(null);
   
   const handleProgressClick = (e) => {
+    e.stopPropagation(); // Stop click from bubbling to mini player
     if (duration && progressBarRef.current) {
       const rect = progressBarRef.current.getBoundingClientRect();
       const clickX = e.clientX - rect.left;
@@ -64,111 +69,114 @@ const ProgressBar = () => {
   const isCurrentSongLiked = currentSong ? likedSongs.includes(currentSong.id) : false;
 
   return (
-    <footer className={styles.progressBar}>
-      
-      <div className={styles.nowPlaying}>
-        {currentSong ? (
-          <>
-            <img src={currentSong.cover} alt={currentSong.title} className={styles.songCover} />
-            <div className={styles.songInfo}>
-              <h4 className={styles.songTitle}>{currentSong.title}</h4>
-              <p className={styles.songArtist}>{currentSong.artist}</p>
-            </div>
-          </>
-        ) : (
-          <div className={styles.noSong}>Select a song to play</div>
-        )}
-      </div>
-
-      <div className={styles.playerControls}>
-        <div className={styles.controlButtons}>
-          <Shuffle 
-            size={18} 
-            className={`${styles.controlIcon} ${shuffle ? styles.activeIcon : ''}`} 
-            onClick={toggleShuffle} 
-          />
-          <SkipBack 
-            size={20} 
-            className={styles.controlIcon} 
-            onClick={prevSong} 
-          />
-          <button className={styles.playButton} onClick={togglePlay}>
-            {isPlaying ? <Pause size={22} /> : <Play size={22} />}
-          </button>
-          <SkipForward 
-            size={20} 
-            className={styles.controlIcon} 
-            onClick={nextSong} 
-          />
-          <Repeat 
-            size={18} 
-            className={`${styles.controlIcon} ${repeat ? styles.activeIcon : ''}`} 
-            onClick={toggleRepeat} 
-          />
-        </div>
+    <>
+      {isPlayerOpen && <FullScreenPlayer />}
+      <footer className={styles.progressBar}>
         
-        <div className={styles.timeControls}>
-          <span>{formatTime(currentTime)}</span>
-          <div
-            className={styles.progressBarTrack}
-            ref={progressBarRef}
-            onClick={handleProgressClick}
-          >
-            <div
-              className={styles.progressBarFill}
-              style={{ width: `${progressPercentage}%` }}
-            ></div>
-          </div>
-          <span>{formatTime(duration)}</span>
+        <div className={styles.nowPlaying} onClick={openPlayer} style={{cursor: 'pointer'}}>
+          {currentSong ? (
+            <>
+              <img src={currentSong.cover} alt={currentSong.title} className={styles.songCover} />
+              <div className={styles.songInfo}>
+                <h4 className={styles.songTitle}>{currentSong.title}</h4>
+                <p className={styles.songArtist}>{currentSong.artist}</p>
+              </div>
+            </>
+          ) : (
+            <div className={styles.noSong}>Select a song to play</div>
+          )}
         </div>
-      </div>
 
-      <div className={styles.extraControls}>
-        <button
-          className={`${styles.controlIcon} ${isCurrentSongLiked ? styles.activeIcon : ''}`}
-          onClick={() => currentSong && toggleLike(currentSong.id)}
-          disabled={!currentSong}
-        >
-          <Heart 
-            size={18} 
-            fill={isCurrentSongLiked ? 'currentColor' : 'none'} 
-          />
-        </button>
-        
-        <div className={styles.volumeContainer}>
-          <div 
-            className={styles.volumeSliderWrapper}
-            style={{ display: showVolume ? 'flex' : 'none' }}
-          >
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className={styles.volumeSlider}
+        <div className={styles.playerControls}>
+          <div className={styles.controlButtons}>
+            <Shuffle 
+              size={18} 
+              className={`${styles.controlIcon} ${shuffle ? styles.activeIcon : ''}`} 
+              onClick={toggleShuffle} 
+            />
+            <SkipBack 
+              size={20} 
+              className={styles.controlIcon} 
+              onClick={prevSong} 
+            />
+            <button className={styles.playButton} onClick={togglePlay}>
+              {isPlaying ? <Pause size={22} /> : <Play size={22} />}
+            </button>
+            <SkipForward 
+              size={20} 
+              className={styles.controlIcon} 
+              onClick={nextSong} 
+            />
+            <Repeat 
+              size={18} 
+              className={`${styles.controlIcon} ${repeat ? styles.activeIcon : ''}`} 
+              onClick={toggleRepeat} 
             />
           </div>
-          <button 
-            className={styles.controlIcon}
-            onClick={() => setShowVolume(!showVolume)}
+          
+          <div className={styles.timeControls}>
+            <span>{formatTime(currentTime)}</span>
+            <div
+              className={styles.progressBarTrack}
+              ref={progressBarRef}
+              onClick={handleProgressClick}
+            >
+              <div
+                className={styles.progressBarFill}
+                style={{ width: `${progressPercentage}%` }}
+              ></div>
+            </div>
+            <span>{formatTime(duration)}</span>
+          </div>
+        </div>
+
+        <div className={styles.extraControls}>
+          <button
+            className={`${styles.controlIcon} ${isCurrentSongLiked ? styles.activeIcon : ''}`}
+            onClick={() => currentSong && toggleLike(currentSong.id)}
+            disabled={!currentSong}
           >
-            <VolumeIcon />
+            <Heart 
+              size={18} 
+              fill={isCurrentSongLiked ? 'currentColor' : 'none'} 
+            />
+          </button>
+          
+          <div className={styles.volumeContainer}>
+            <div 
+              className={styles.volumeSliderWrapper}
+              style={{ display: showVolume ? 'flex' : 'none' }}
+            >
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={volume}
+                onChange={handleVolumeChange}
+                className={styles.volumeSlider}
+              />
+            </div>
+            <button 
+              className={styles.controlIcon}
+              onClick={() => setShowVolume(!showVolume)}
+            >
+              <VolumeIcon />
+            </button>
+          </div>
+          
+          {showQueue && <QueuePopup onClose={() => setShowQueue(false)} />}
+          
+          <button 
+              className={`${styles.controlIcon} ${showQueue ? styles.activeIcon : ''}`}
+              onClick={() => setShowQueue(!showQueue)}
+          >
+              <ListMusic size={18} />
           </button>
         </div>
-        
-        {showQueue && <QueuePopup onClose={() => setShowQueue(false)} />}
-        
-        <button 
-            className={`${styles.controlIcon} ${showQueue ? styles.activeIcon : ''}`}
-            onClick={() => setShowQueue(!showQueue)}
-        >
-            <ListMusic size={18} />
-        </button>
-      </div>
 
-    </footer>
+      </footer>
+    </>
   );
 };
 

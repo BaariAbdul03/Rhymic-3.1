@@ -220,10 +220,10 @@
   }
   
   .searchWrapper {
-    margin-right: 8px;
+    margin-right: 12px;
     flex: 1; 
-    min-width: 0;
-    max-width: 200px; /* Limit width to prevent overlap */
+    min-width: 0; /* Allow search to shrink */
+    max-width: 200px; /* Stop before profile icon */
   }
   
   .searchInput {
@@ -233,6 +233,15 @@
   
   .userControls {
     gap: 8px;
+    display: flex !important; /* Force Visible */
+    flex-shrink: 0; /* Do not shrink */
+  }
+  
+  .userIcon {
+    display: flex !important;
+    width: 36px;
+    height: 36px;
+    padding: 0;
   }
   
   .subscribeButton {

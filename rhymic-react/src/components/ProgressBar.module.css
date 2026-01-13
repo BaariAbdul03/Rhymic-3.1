@@ -284,23 +284,21 @@
 
 @media (max-width: 768px) {
   .progressBar {
-    height: 70px;
-    padding: 0 12px;
-    position: relative; /* For absolute track */
-    gap: 8px;
+    height: 64px;
+    padding: 0 16px;
+    position: relative;
+    gap: 16px;
+    z-index: 500;
   }
 
-  /* 1. Track moves to very top edge */
+  /* 1. Progress Track (Line at top) */
   .playerControls {
     margin: 0;
-    flex-grow: 1; /* Allow it to take available space */
-    flex-direction: row; /* Horizontal controls */
-    justify-content: flex-end; /* Push to right */
-    max-width: none;
-    order: 3; /* Move to right side */
+    flex: 0 0 auto; /* Only take button space */
+    order: 2; /* Right side */
+    width: auto;
   }
 
-  /* Hide the time numbers and inner track wrapper */
   .timeControls {
     position: absolute;
     top: 0;
@@ -308,84 +306,66 @@
     width: 100%;
     padding: 0;
     gap: 0;
-    height: 3px;
+    height: 2px;
   }
-  .timeControls span { display: none; } /* Hide time text */
+  .timeControls span { display: none; }
 
-  /* Make track full width at top */
   .progressBarTrack {
     border-radius: 0;
-    background-color: rgba(255,255,255,0.2);
+    background-color: rgba(255,255,255,0.1);
+    height: 2px;
   }
   .progressBarFill {
     border-radius: 0;
   }
-  .progressBarFill::after { display: none; } /* Remove knob */
+  .progressBarFill::after { display: none; }
 
-  /* 2. Song Info compact */
+  /* 2. Song Info (Left Side) */
   .nowPlaying {
-    flex: 1; 
-    max-width: 60%;
-    gap: 8px;
-    order: 1;
-    min-width: 0; /* CRITICAL: Prevent stretching */
-  }
-  
-  .songInfo {
-    min-width: 0; /* CRITICAL: Allow text truncation */
-  }
-
-  .songCover {
-    width: 42px;
-    height: 42px;
-  }
-  .songTitle { font-size: 0.85rem; }
-  .songArtist { font-size: 0.75rem; }
-
-  /* 3. Controls - Show All */
-  .controlButtons {
-    gap: 16px; /* Restore gap for easier tapping */
-  }
-  /* Unhide icons */
-  .controlIcon[title="Enable Shuffle"], 
-  .controlIcon[title="Enable Repeat"],
-  .controlIcon:first-child { 
-     display: block;
-  }
-  
-  .controlIcon {
-    /* Remove scaling to keep icons touchable */
-    transform: none; 
-    padding: 4px; /* Add padding for hit area */
-  }
-  
-  .controlIcon svg {
-    width: 20px; /* Restore standard size */
-    height: 20px;
-  }
-
-  .playButton {
-    width: 40px; /* Restore size */
-    height: 40px;
-  }
-
-  /* 4. Extra Controls */
-  .extraControls {
-    display: flex;
-    flex-basis: auto;
-    gap: 8px;
-  }
-  
-  /* Shrink text area slightly more to fit buttons */
-  .nowPlaying {
-    flex: 1; 
-    max-width: 45%; 
-    gap: 8px;
+    flex: 1; /* Take all remaining space */
+    max-width: none;
+    gap: 12px;
     order: 1;
     min-width: 0;
   }
   
-  .volumeContainer {
-    display: none;
+  .songInfo {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .songCover {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+  }
+  
+  .songTitle { 
+    font-size: 0.95rem; 
+    font-weight: 600;
+  }
+  
+  /* Hide Artist Name per request */
+  .songArtist { display: none; }
+
+  /* 3. Controls (Only Play/Pause) */
+  .controlButtons {
+    gap: 0;
+  }
+  
+  /* Hide ALL secondary icons */
+  .controlIcon {
+    display: none !important;
+  }
+
+  .playButton {
+    width: 42px;
+    height: 42px;
+    box-shadow: none; /* Flatter look for mini player */
+  }
+
+  /* 4. Hide Extra Controls */
+  .extraControls {
+    display: none !important;
   }
 }
