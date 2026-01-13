@@ -1,7 +1,7 @@
 // src/store/authStore.js
 import { create } from 'zustand';
 
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
   user: JSON.parse(localStorage.getItem('user')) || null,
   token: localStorage.getItem('token') || null,
   error: null,
@@ -59,6 +59,13 @@ export const useAuthStore = create((set) => ({
       const response = await fetch('/api/user/me', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+
+      if (response.status === 404 || response.status === 401) {
+        // User not found (DB reset) or invalid token -> Force Logout
+        get().logout();
+        return;
+      }
+
       if (response.ok) {
         const userData = await response.json();
         localStorage.setItem('user', JSON.stringify(userData));
