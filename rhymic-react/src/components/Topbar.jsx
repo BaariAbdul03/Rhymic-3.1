@@ -2,9 +2,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import styles from './Topbar.module.css';
-import { Search, User } from 'lucide-react';
+import { Search, User, Menu } from 'lucide-react';
 import { useMusicStore } from '../store/musicStore';
 import { useAuthStore } from '../store/authStore';
+import { useUIStore } from '../store/uiStore';
 
 const Topbar = () => {
   const [query, setQuery] = useState('');
@@ -13,6 +14,7 @@ const Topbar = () => {
   const searchRef = useRef(null);
   
   const user = useAuthStore((state) => state.user);
+  const { toggleSidebar } = useUIStore();
   
   // Get songs and actions from the store
   const allSongs = useMusicStore((state) => state.songs);
@@ -55,6 +57,10 @@ const Topbar = () => {
 
   return (
     <nav className={styles.topbar}>
+      <button className={styles.hamburger} onClick={toggleSidebar}>
+        <Menu size={24} />
+      </button>
+
       <div className={styles.searchWrapper} ref={searchRef}>
         <div className={styles.searchContainer}>
           <Search size={18} className={styles.searchIcon} />

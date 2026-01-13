@@ -8,6 +8,15 @@
   background: transparent; /* Let body background show */
 }
 
+@media (max-width: 768px) {
+  .appContainer {
+    grid-template-columns: 1fr;
+    grid-template-areas: 
+      "main" 
+      "progress-bar";
+  }
+}
+
 .contentArea {
   grid-area: main;
   overflow-y: auto;
