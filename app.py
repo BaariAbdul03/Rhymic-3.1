@@ -507,12 +507,12 @@ def initialize_app():
                     from sqlalchemy import text
                     # 1. Try adding if missing
                     try:
-                        conn.execute(text("ALTER TABLE user ADD COLUMN profile_pic TEXT"))
+                        conn.execute(text('ALTER TABLE "user" ADD COLUMN profile_pic TEXT'))
                         conn.commit()
                         print("Migrated: Added profile_pic column")
                     except Exception:
                         # 2. If exists, ensure it is TEXT (for Base64 support)
-                        conn.execute(text("ALTER TABLE user ALTER COLUMN profile_pic TYPE TEXT"))
+                        conn.execute(text('ALTER TABLE "user" ALTER COLUMN profile_pic TYPE TEXT'))
                         conn.commit()
                         print("Migrated: Updated profile_pic to TEXT")
             except Exception as e:
